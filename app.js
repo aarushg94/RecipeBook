@@ -523,6 +523,6 @@ function escapeRegex(text) {
  * App listening port
  */
 
-app.listen(3000, function () {
+app.listen(process.env.PORT || 3000, function () {
     console.log("Social Web server started")
 })

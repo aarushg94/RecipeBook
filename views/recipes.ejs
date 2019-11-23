@@ -1,0 +1,36 @@
+<div class="background">
+    <% include partials/header %>
+
+    <div class="container" style="min-width: 95%;">
+
+        <div class="jumbotron" style="padding: 30px;">
+            <div class="container" style="min-width: 90%;">
+                <h1 class="display-4" style="font-weight: 500;">Recipes</h1>
+                <p class="lead">Have you tried any of our latest recipes?</p>
+                <a href="/" class="btn btn-success btn-md">Home</a>
+                <a href="/recipes/new" class="btn btn-primary btn-md">Add New Recipe</a>
+                <a href="/dashboard" class="btn btn-warning btn-md">View Dashboard</a>
+            </div>
+        </div>
+        <div class="row">
+            <% for(var i = 0;i < recipes.length;i++){ %>
+                <div class="col-lg-2 col-sm-offset-1">
+                    <figure class="figure" style="border: 1px solid gray;padding: 10px;">
+                        <img class="figure-img img-fluid rounded" src="<%= recipes[i].recipeURL %>">
+                        <hr>
+                        <figcaption class="figure-caption text-center">
+                            <h5>
+                                <div class="btn-group" role="group" aria-label="Basic example">
+                                    <a href="/recipes/<%= recipes[i]._id %>" type="button"
+                                       class="btn btn-outline-primary btn-sm"><%= recipes[i].recipeName %></a>
+                                </div>
+                            </h5>
+                        </figcaption>
+                    </figure>
+                </div>
+            <% } %>
+        </div>
+        <p></p>
+    </div>
+    <% include partials/footer %>
+</div>

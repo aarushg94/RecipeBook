@@ -1,0 +1,24 @@
+<div class="background"
+     style="background-image: url(https://images.wallpaperscraft.com/image/surface_background_plain_black_50697_2560x1440.jpg); height: 100% !important;">
+    <% include partials/header %>
+    <p></p>
+    <div class="container" style="width: 20%;">
+        <div class="text-center">
+            <form class="form-signin" action="/login" method="POST">
+                <img class="mb-4"
+                     src="https://img.icons8.com/bubbles/3x/login-rounded-right.png" width="300" height="300">
+                <label for="inputEmail" class="sr-only">Email address</label>
+                <input type="text" name="username" id="inputEmail" class="form-control" placeholder="username" required
+                       autofocus>
+                <label for="inputPassword" class="sr-only">Password</label>
+                <input type="password" name="password" id="inputPassword" class="form-control" placeholder="Password"
+                       required>
+                <p></p>
+                <button class="btn btn-md btn-success btn-block" type="submit">Sign in</button>
+                <p></p>
+                New user? <a href="/register">Register Now</a>
+            </form>
+        </div>
+    </div>
+    <% include partials/footer %>
+</div>

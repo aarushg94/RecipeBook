@@ -1,0 +1,22 @@
+<div class="background"
+     style="background-image: url(https://images.wallpaperscraft.com/image/surface_background_plain_black_50697_2560x1440.jpg); height: 100% !important;">
+    <% include partials/header %>
+    <p></p>
+    <div class="container" style="width: 20%;">
+        <div class="text-center">
+            <form class="form-signin" action="/register" method="POST">
+                <img class="mb-4"
+                     src="http://www.ritsms.com/wp-content/uploads/2017/02/yeni_kayit.png" width="210" height="200">
+                <label for="inputEmail" class="sr-only">Email address</label>
+                <input type="text" name="username" id="inputEmail" class="form-control" placeholder="username" required autofocus>
+                <label for="inputPassword" class="sr-only">Password</label>
+                <input type="password" name="password" class="form-control" placeholder="Password" required>
+                <p></p>
+                <button class="btn btn-md btn-info btn-block" type="submit">Register</button>
+                <p></p>
+                Already a user? <a href="/login">Login now</a>
+            </form>
+        </div>
+    </div>
+    <% include partials/footer %>
+</div>

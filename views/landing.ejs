@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Social Web</title>
+    <link rel="icon" href="./images/favicon.png">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://kit.fontawesome.com/f795020668.js" crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <style>
+        h1 {
+            padding: 80px !important;
+            text-align: center;
+        }
+
+        .container {
+            min-width: 80%;
+        }
+
+        .background {
+            color: white;
+        }
+    </style>
+</head>
+<body class="background"
+      style="background: url(https://i.stack.imgur.com/99BJx.jpg);">
+<div class="container">
+    <div class="row">
+        <div class="col-lg-6" id="users">
+            <h1><i class="fas fa-users" style="color: gold;"></i>
+                <p></p>
+                <%= users.length %> Unique Users
+            </h1>
+        </div>
+        <div class="col-lg-6 recipes" id="recipes">
+            <h1><i class="fas fa-utensils" style="color: coral;"></i>
+                <p></p>
+                <%= recipes.length %> Recipes
+            </h1>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-12" id="main">
+            <h1><a href="/recipes" type="button" class="btn btn-primary btn-lg"
+                   style="width: 390px;color: white;">Welcome to
+                    Social Web 2.0</a>
+                <hr class="line">
+                <% if (!currentUser){ %>
+                    <a href="/login" id="button-main" type="button" class="btn btn-success btn-lg">Login</a>
+                <% } %>
+                <% if(currentUser) { %>
+                    <a href="/dashboard" id="button-main" type="button" class="btn btn-warning btn-lg">View
+                        Dashboard</a>
+                <% } %>
+                <% if (!currentUser){ %>
+                    <a href="/register" id="button-main" type="button"
+                       class="btn btn-danger btn-lg">Register</a>
+                <% } %>
+            </h1>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-4" id="likes">
+            <h1><i class="fas fa-heart" style="color: red;"></i>
+                <p></p>
+                <% var likesCount = 0 %>
+                <% for(var i = 0; i < recipes.length; i++) { %>
+                    <% likesCount = likesCount + recipes[i].likes %>
+                <% } %>
+                <%= likesCount %> Likes
+            </h1>
+        </div>
+        <div class="col-lg-4" id="upvotes">
+            <h1><i class="fas fa-thumbs-up" style="color: deepskyblue;"></i>
+                <p></p>
+                <% var voteCount = 0 %>
+                <% for(var i = 0; i < recipes.length; i++) { %>
+                    <% voteCount = voteCount + recipes[i].upvotes %>
+                <% } %>
+                <%= voteCount %> Upvotes
+            </h1>
+        </div>
+        <div class="col-lg-4" id="tags">
+            <h1><i class="fas fa-tags" style="color: greenyellow;"></i>
+                <p></p>
+                <%= comments.length %> Tags
+            </h1>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,199 @@
+<% include partials/header %>
+<style>
+    .badge-pill {
+        font-size: 15px;
+    }
+
+    .list-group {
+        width: 100%;
+    }
+
+    .list-group-item {
+        padding: 15px;
+        font-size: 15px;
+    }
+
+    .fas {
+        font-size: 18px;
+    }
+</style>
+
+<div class="container" style="text-align:  center !important;min-width: 100% !important;">
+    <div class="row">
+        <ul class="list-group">
+            <li class="list-group-item d-flex justify-content-between align-items-center"
+                style="font-weight: bold;justify-content: center !important;font-size: 30px;height: 100px;background-color: antiquewhite;">
+                Welcome,&nbsp
+                <span style="color: darkred; text-decoration: underline"><%= currentUser.username %></span>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<div class="container" style="min-width: 80%;">
+    <div class="row">
+        <div class="col-lg-6">
+            <p></p>
+            <div class="container" style="text-align:  center !important;min-width: 100% !important;">
+                <ul class="list-group">
+                    <li class="list-group-item d-flex justify-content-between align-items-center"
+                        style="font-weight: bold;justify-content: center !important;font-size: 20px;">
+                        Application Summary
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <i class="fas fa-users"> Unique Users</i>
+                        <span class="badge badge-info badge-pill"><%= users.length %></span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <i class="fas fa-utensils"> Total Recipes Posted</i>
+                        <span class="badge badge-warning badge-pill"><%= recipes.length %></span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <i class="fas fa-comments"> Total Tags Added</i>
+                        <span class="badge badge-primary badge-pill"><%= comments.length %></span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <i class="fas fa-heart"> Total Likes</i>
+                        <span class="badge badge-danger badge-pill">
+                            <% var likesCount = 0 %>
+                            <% for(var i = 0; i < recipes.length; i++) { %>
+                                <% likesCount = likesCount + recipes[i].likes.valueOf() %>
+                            <% } %>
+                            <%= likesCount %>
+                        </span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <i class="fas fa-thumbs-up"> Total Up Votes</i>
+                        <span class="badge badge-success badge-pill">
+                            <% var voteCount = 0 %>
+                            <% for(var i = 0; i < recipes.length; i++) { %>
+                                <% voteCount = voteCount + recipes[i].upvotes %>
+                            <% } %>
+                            <%= voteCount %>
+                        </span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <p></p>
+            <div class="container" style="text-align:  center !important;min-width: 100% !important;">
+                <ul class="list-group">
+                    <li class="list-group-item d-flex justify-content-between align-items-center" style="font-weight:
+                bold;justify-content: center !important;font-size: 20px;">
+                        User Statistics
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <i class="fas fa-users"> Username</i>
+                        <span style="font-weight: bold"><%= currentUser.username %></span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <i class="fas fa-utensils"> Total Recipes Posted</i>
+                        <% var count = 0; %>
+                        <% for(var i = 0;i < recipes.length;i++){ %>
+                            <% if(recipes[i].author.username.match(currentUser.username)){ %>
+                                <% count++; %>
+                            <% } %>
+                        <% } %>
+                        <span class="badge badge-warning badge-pill"><%= count %></span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <i class="fas fa-comments"> Total Tags Added</i>
+                        <% var count = 0; %>
+                        <% for(var i = 0;i < comments.length;i++){ %>
+                            <% if(comments[i].author.username.match(currentUser.username)){ %>
+                                <% count++; %>
+                            <% } %>
+                        <% } %>
+                        <span class="badge badge-primary badge-pill"><%= count %></span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <i class="fas fa-heart"> Total Likes</i>
+                        <span class="badge badge-danger badge-pill">
+                            <% var likesCount = 0 %>
+                            <% for(var i = 0; i < recipes.length; i++) { %>
+                                <% likesCount = likesCount + recipes[i].likes.valueOf() %>
+                            <% } %>
+                            <%= likesCount %>
+                        </span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <i class="fas fa-thumbs-up"> Total Up Votes</i>
+                        <span class="badge badge-success badge-pill">
+                            <% var voteCount = 0 %>
+                            <% for(var i = 0; i < recipes.length; i++) { %>
+                                <% voteCount = voteCount + recipes[i].upvotes %>
+                            <% } %>
+                            <%= voteCount %>
+                        </span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<p></p>
+
+<div class="container" style="min-width: 77%;">
+    <div class="row">
+        <ul class="list-group">
+            <li class="list-group-item d-flex justify-content-between align-items-center" style="font-weight:
+                bold;justify-content: center !important;font-size: 20px;">
+                Recipes Added By You
+            </li>
+            <p></p>
+            <div class="row">
+                <% for(var i = 0;i < recipes.length;i++) { %>
+                    <% if(recipes[i].author.username.match(currentUser.username)){ %>
+                        <div class="col-lg-4">
+                            <div class="card mb-3" style="min-width: 100% !important;">
+                                <div class="row no-gutters">
+                                    <div class="col-md-3">
+                                        <img src="<%= recipes[i].recipeURL %>" class="card-img">
+                                    </div>
+                                    <div class="col-md-9">
+                                        <div class="card-body">
+                                            <h5 class="card-title">
+                                                <%= recipes[i].recipeName %>
+                                            </h5>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    <% } %>
+                <% } %>
+            </div>
+        </ul>
+    </div>
+</div>
+
+<p></p>
+
+<div class="container" style="min-width: 77%;">
+    <div class="row">
+        <ul class="list-group">
+            <li class="list-group-item d-flex justify-content-between align-items-center" style="font-weight:
+                bold;justify-content: center !important;font-size: 20px;">
+                Tags Added By You
+            </li>
+            <p></p>
+            <div class="row">
+                <% for(var i = 0;i < comments.length;i++) { %>
+                    <% if(comments[i].author.username.match(currentUser.username)){ %>
+                        <div class="col-sm-3">
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <%= comments[i].text %>
+                            </li>
+                        </div>
+                    <% } %>
+                <% } %>
+            </div>
+        </ul>
+    </div>
+</div>
+
+<p></p>
+
+<% include partials/footer %>

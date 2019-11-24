@@ -1,23 +1,28 @@
-<% include partials/header %>
-<p></p>
-<div class="container" style="width: 60%">
-    <h1 style="text-align: center;">Edit Comment</h1>
+<div class="background"
+     style="background-image: url(/images/purplelight.jpg); height: 100% !important;">
+    <% include partials/header %>
     <p></p>
-    <form action="/recipes/<%= recipe_id %>/comments/<%= comment._id %>?_method=PUT"
-          method="POST">
-        <div class="form-group row">
-            <label for="inputEmail3" class="col-sm-2 col-form-label">Recipe Name</label>
-            <div class="col-sm-10">
-                <input type="text" name=comment[text]" class="form-control" id="inputEmail3"
-                       value="<%= comment.text %>"
-                       required>
+    &nbsp;
+    <p></p>
+    <div class="container" style="width: 20%">
+        <h1 style="text-align: center; color: white">Edit Tag</h1>
+        <p></p>
+        <form action="/recipes/<%= recipe_id %>/comments/<%= comment._id %>?_method=PUT"
+              method="POST">
+            <hr>
+            <div class="form-group row">
+                <div class="col-sm-12">
+                    <input type="text" name=comment[text]" class="form-control" id="inputEmail3"
+                           value="<%= comment.text %>"
+                           required>
+                </div>
             </div>
-        </div>
-        <div class="form-group row" style="justify-content: center;margin-left: 50% !important;">
-            <div class="col-lg-12">
-                <button class="btn btn-md btn-warning" type="submit">Update Comment</button>
+            <div class="form-group row" style="text-align: center;">
+                <div class="col-lg-12">
+                    <button class="btn btn-block btn-md btn-warning" type="submit">Update Tag</button>
+                </div>
             </div>
-        </div>
-    </form>
+        </form>
+    </div>
+    <% include partials/footer %>
 </div>
-<% include partials/footer %>

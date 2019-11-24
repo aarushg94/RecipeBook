@@ -1,108 +1,111 @@
-<% include partials/header %>
-<p></p>
-<div class="container" style="min-width: 80%">
+<!--<div class="background"-->
+<!--     style="background-image: url(/images/purplelight.jpg); height: 100% !important;">-->
+    <% include partials/header %>
     <p></p>
-    <div class="row">
-        <div class="col-lg-3">
-            <img src="<%= result.recipeURL %>" class="card-img-top">
-            <p></p>
-        </div>
-        <div class="col-lg-9">
-            <div class="alert alert-success" role="alert">
-                <div class="row">
-                    <div class="col-lg-12">
-                        <h2 class="alert-heading"><%= result.recipeName %>
-                            <div class="btn-group" role="group" aria-label="Basic example">
-                                <% if(currentUser){ %>
-                                    <form action="/recipes/<%= result._id %>/like" method="POST">
-                                        <button type="submit"
-                                                class="far fa-heart btn btn-danger btn-lg"> <%= result.likes.length %></button>
-                                    </form>&nbsp;
-                                    <form action="/recipes/<%= result._id %>/upvote" method="POST">
-                                        <button type="submit"
-                                                class="far fa-thumbs-up btn btn-primary btn-lg"> <%= result.upvotes.length %>
+    <div class="container" style="min-width: 80%">
+        <p></p>
+        <div class="row">
+            <div class="col-lg-3">
+                <img src="<%= result.recipeURL %>" class="card-img-top">
+                <p></p>
+            </div>
+            <div class="col-lg-9">
+                <div class="alert alert-success" role="alert">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <h2 class="alert-heading"><%= result.recipeName %>
+                                <div class="btn-group" role="group" aria-label="Basic example">
+                                    <% if(currentUser){ %>
+                                        <form action="/recipes/<%= result._id %>/like" method="POST">
+                                            <button type="submit"
+                                                    class="far fa-heart btn btn-danger btn-lg"> <%= result.likes.length %></button>
+                                        </form>&nbsp;
+                                        <form action="/recipes/<%= result._id %>/upvote" method="POST">
+                                            <button type="submit"
+                                                    class="far fa-thumbs-up btn btn-primary btn-lg"> <%= result.upvotes.length %>
+                                            </button>
+                                        </form>
+                                    <% } %>
+                                </div>
+                                <hr>
+                                <% if (currentUser && (result.author.id).equals(currentUser._id)){ %>
+                                    <form action="/recipes/<%= result._id %>?_method=DELETE" method="POST">
+                                        <a href="/recipes/<%= result._id %>/edit" type="button"
+                                           class="fas fa-edit btn btn-outline-primary btn-sm"
+                                           style="font-size: 18px;margin: 0px !important;">
+                                        </a>
+                                        <button class="fas fa-trash btn btn-outline-danger btn-sm"
+                                                style="font-size: 18px;margin: 0px !important;">
                                         </button>
                                     </form>
+                                    <hr>
                                 <% } %>
+                            </h2>
+                            <h6>Added by <span class="bolded" style="font-weight: bold"> <%= result.author.username %>
+                            on <%= moment(result.createdAt).format('DD MMM, YYYY @ hh:mm A') %></span></h6>
+                            <hr>
+                        </div>
+                    </div>
+                    <div style="font-size: 14px;text-align: justify;"><%= result.recipeInstructions %></div>
+                    <hr>
+                    <a href="/recipes" class="btn btn-sm btn-outline-primary" type="submit">Back To All Recipes</a>
+                </div>
+            </div>
+            <div class="col-lg-12">
+                <div class="alert alert-light" role="alert">
+                    <div class="form-group">
+                        <p></p>
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-lg-9" for="exampleFormControlTextarea1">
+                                    <h3 class="heading" style="font-weight: bold">
+                                        Tags
+                                    </h3>
+                                </div>
+                                <div class="col-lg-3">
+                                    <form action="/recipes/<%= result.id %>/comments/new" method="GET">
+                                        <button class="btn btn-sm btn-primary" type="submit">Add New Tag
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        <hr>
+                        <% for(var i = 0;i < result.comments.length;i++){ %>
+                            <div class="container">
+                                <form action="/recipes/<%= result._id %>/comments/<%= result.comments[i]._id %>?_method=DELETE"
+                                      method="POST">
+                                    <div class="row">
+                                        <div class="col-lg-9">
+                                            <%= result.comments[i].text %><br>
+                                            <span class="user"
+                                                  style="font-size: 13px;"><em>Submitted by</em> <span
+                                                        class="uservalue"
+                                                        style="font-weight: bold"> <%= result.comments[i].author.username %> <span
+                                                            class="on"
+                                                            style="font-weight: normal">on </span> <%= moment(result.comments[i].createdAt).format('DD MMM, YYYY @ hh:mm A') %></span></span>
+                                        </div>
+                                        <div class="col-lg-3">
+                                            <% if (currentUser && (result.comments[i].author.id).equals(currentUser._id)){ %>
+                                                <a href="/recipes/<%= result._id %>/comments/<%= result.comments[i]._id %>/edit"
+                                                   type="button"
+                                                   class="fas fa-edit btn btn-outline-primary btn-sm"
+                                                   style="margin: 0px !important; font-size: 18px">
+                                                </a>
+                                                <button class="fas fa-trash btn btn-outline-danger btn-sm"
+                                                        style="font-size: 18px;margin: 0px !important;">
+                                                </button>
+                                            <% } %>
+                                        </div>
+                                    </div>
+                                </form>
                             </div>
                             <hr>
-                            <% if (currentUser && (result.author.id).equals(currentUser._id)){ %>
-                                <form action="/recipes/<%= result._id %>?_method=DELETE" method="POST">
-                                    <a href="/recipes/<%= result._id %>/edit" type="button"
-                                       class="fas fa-edit btn btn-outline-primary btn-sm"
-                                       style="font-size: 18px;margin: 0px !important;">
-                                    </a>
-                                    <button class="fas fa-trash btn btn-outline-danger btn-sm"
-                                            style="font-size: 18px;margin: 0px !important;">
-                                    </button>
-                                </form>
-                                <hr>
-                            <% } %>
-                        </h2>
-                        <h6>Added by <span class="bolded" style="font-weight: bold"> <%= result.author.username %>
-                            on <%= moment(result.createdAt).format('DD MMM, YYYY @ hh:mm A') %></span></h6>
-                        <hr>
+                        <% } %>
                     </div>
-                </div>
-                <div style="font-size: 14px;text-align: justify;"><%= result.recipeInstructions %></div>
-                <hr>
-                <a href="/recipes" class="btn btn-sm btn-outline-primary" type="submit">Back To All Recipes</a>
-            </div>
-        </div>
-        <div class="col-lg-12">
-            <div class="alert alert-light" role="alert">
-                <div class="form-group">
-                    <p></p>
-                    <div class="container">
-                        <div class="row">
-                            <div class="col-lg-9" for="exampleFormControlTextarea1">
-                                <h3 class="heading" style="font-weight: bold">
-                                    Tags
-                                </h3>
-                            </div>
-                            <div class="col-lg-3">
-                                <form action="/recipes/<%= result.id %>/comments/new" method="GET">
-                                    <button class="btn btn-sm btn-primary" type="submit">Add New Tag
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                    <hr>
-                    <% for(var i = 0;i < result.comments.length;i++){ %>
-                        <div class="container">
-                            <form action="/recipes/<%= result._id %>/comments/<%= result.comments[i]._id %>?_method=DELETE"
-                                  method="POST">
-                                <div class="row">
-                                    <div class="col-lg-9">
-                                        <%= result.comments[i].text %><br>
-                                        <span class="user"
-                                              style="font-size: 13px;"><em>Submitted by</em> <span
-                                                    class="uservalue"
-                                                    style="font-weight: bold"> <%= result.comments[i].author.username %> <span
-                                                        class="on"
-                                                        style="font-weight: normal">on </span> <%= moment(result.comments[i].createdAt).format('DD MMM, YYYY @ hh:mm A') %></span></span>
-                                    </div>
-                                    <div class="col-lg-3">
-                                        <% if (currentUser && (result.comments[i].author.id).equals(currentUser._id)){ %>
-                                            <a href="/recipes/<%= result._id %>/comments/<%= result.comments[i]._id %>/edit"
-                                               type="button"
-                                               class="fas fa-edit btn btn-outline-primary btn-sm"
-                                               style="margin: 0px !important; font-size: 18px">
-                                            </a>
-                                            <button class="fas fa-trash btn btn-outline-danger btn-sm"
-                                                    style="font-size: 18px;margin: 0px !important;">
-                                            </button>
-                                        <% } %>
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
-                        <hr>
-                    <% } %>
                 </div>
             </div>
         </div>
     </div>
-</div>
-<% include partials/footer %>
+    <% include partials/footer %>
+<!--</div>-->

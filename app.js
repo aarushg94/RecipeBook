@@ -121,8 +121,6 @@ var recipeSchema = new mongoose.Schema({
     recipeName: String,
     recipeURL: String,
     recipeInstructions: String,
-    // likes: {type: Number, default: 0},
-    // upvotes: {type: Number, default: 0},
     createdAt: {type: Date, default: Date.now()},
     author: {
         id: {
@@ -237,29 +235,33 @@ app.get("/recipes/new", isLoggedIn, function (req, res) {
 
 app.get("/recipes", function (req, res) {
     var mysort = {likes: -1};
-    if (req.query.search) {
-        const regex = new RegExp(escapeRegex(req.query.search), 'gi');
-        Recipe.find({$or: [{recipeName: regex}, {recipeInstructions: regex}]}, function (error, recipes) {
-            if (error) {
-                console.log(error);
-            } else {
-                if (recipes.length > 0) {
-                    res.render("recipes", {recipes: recipes});
+    Recipe.find().populate("comments likes").exec(function (err, result) {
+        // console.log(result);
+        // console.log(result[5].author.username);
+        if (req.query.search) {
+            const regex = new RegExp(escapeRegex(req.query.search), 'gi');
+            Recipe.find({$or: [{recipeName: regex}, {recipeInstructions: regex}]}, function (error, recipes) {
+                if (error) {
+                    console.log(error);
+                } else {
+                    if (recipes.length > 0) {
+                        res.render("recipes", {recipes: recipes});
+                    } else {
+                        res.render("recipes", {recipes: recipes});
+                    }
+                }
+            }).sort(mysort);
+        } else {
+            Recipe.find({}, function (error, recipes) {
+                if (error) {
+                    console.log(error);
                 } else {
                     res.render("recipes", {recipes: recipes});
                 }
-            }
-        }).sort(mysort);
-    } else {
-        Recipe.find({}, function (error, recipes) {
-            if (error) {
-                console.log(error);
-            } else {
-                res.render("recipes", {recipes: recipes});
-            }
-        });
-    }
-})
+            });
+        }
+    })
+});
 
 /**
  * Details of a recipe
@@ -563,17 +565,6 @@ app.post("/recipes/:id/upvoted", function (req, res) {
 })
 
 /**
- * Fuzzy searching with MongoDB
- * Source --> https://stackoverflow.com/questions/38421664/fuzzy-searching-with-mongodb
- * @param text
- * @returns {void | string}
- */
-
-function escapeRegex(text) {
-    return text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
-};
-
-/**
  * Add a new like
  */
 
@@ -616,6 +607,17 @@ app.post("/recipes/:id/upvote", isLoggedIn, function (req, res) {
         }
     });
 })
+
+/**
+ * Fuzzy searching with MongoDB
+ * Source --> https://stackoverflow.com/questions/38421664/fuzzy-searching-with-mongodb
+ * @param text
+ * @returns {void | string}
+ */
+
+function escapeRegex(text) {
+    return text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
+};
 
 /**
  * App listening port

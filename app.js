@@ -1,5 +1,10 @@
 var express = require("express");
 var app = express();
+app.use('/', express.static(__dirname + '/www')); // redirect root
+app.use('/js', express.static(__dirname + '/node_modules/bootstrap/dist/js'));
+app.use('/js', express.static(__dirname + '/node_modules/jquery/dist'));
+app.use('/css', express.static(__dirname + '/node_modules/bootstrap/dist/css'));
+app.use('/images', express.static(__dirname + '/images'))
 var bodyParser = require("body-parser");
 var flash = require("connect-flash");
 app.use(bodyParser.urlencoded({extended: true}));

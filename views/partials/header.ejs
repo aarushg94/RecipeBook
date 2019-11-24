@@ -2,44 +2,40 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Social Web</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <title>RecipeBook</title>
+    <link rel="icon" href="/images/favicon.png">
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <script src="/js/jquery.min.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
     <script src="https://kit.fontawesome.com/f795020668.js" crossorigin="anonymous"></script>
 </head>
-<!--<body style="background-image: url(https://i.stack.imgur.com/99BJx.jpg);">-->
-<!--<body style="background-image: url(https://images5.alphacoders.com/316/316562.png);">-->
-<!--<body style="background-image: url(https://images.wallpaperscraft.com/image/surface_background_plain_black_50697_2560x1440.jpg);">-->
-<!--<body style="background-image: url(https://wallup.net/wp-content/uploads/2018/09/27/690186-busan-night-city-blur-.jpg);">-->
-<!--<body style="background-image: url(http://getwallpapers.com/wallpaper/full/0/9/2/962267-free-solid-wallpapers-2560x1600-download.jpg);">-->
-<!--<body style="background-image: url(https://www.pixelstalk.net/wp-content/uploads/2016/06/Solid-Color-HD-Wallpapers-For-Desktop.jpg);">-->
-<!--<body style="background-image: url(https://www.pixelstalk.net/wp-content/uploads/2016/06/Free-Download-Solid-Color-HD-Wallpapers.jpg);">-->
-<!--<body style="background-image: url(https://www.pixelstalk.net/wp-content/uploads/2016/06/Images-Download-Solid-Color-HD-Wallpapers.jpg);">-->
-<!--<body style="background-image: url(https://www.pixelstalk.net/wp-content/uploads/2016/06/Solid-Color-HD-Wallpapers-Free-Download.jpg);">-->
 <body>
 <nav class="navbar navbar-expand-md navbar-dark bg-dark"
-     style="left: 0;top: 0;width: 100%; text-align: center;padding: 30px; color: white; justify-content: center; height: 1px">
+     style="left: 0;top: 0;width: 100%; text-align: center;padding: 35px; color: white; justify-content: center; height: 1px">
     <div class="navbar-collapse collapse w-100 order-1 order-md-0 dual-collapse2">
         <ul class="navbar-nav mr-auto">
             <li class="nav-item">
-                <a class="nav-link" href="/">Home</a>
+                <a class="nav-link" href="/" style="font-size: 20px;">Home</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="/recipes">Recipes</a>
+                <a class="nav-link" href="/recipes" style="font-size: 20px;">Recipes</a>
             </li>
         </ul>
     </div>
     <div class="mx-auto order-0">
-        <a class="navbar-brand mx-auto" href="/">Social Web</a>
+        <!--        <a class="navbar-brand mx-auto" href="/"><span class="mainheading" style="font-size: 30px"></span>-->
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".dual-collapse2">
-            <span class="navbar-toggler-icon"></span>
         </button>
-    </div>
+        <br>
+        <!--            <span class="subheading" style="font-size: 20px; font-style: italic">Talk about your recipes!</span>-->
+        </a></div>
 
     <div class="navbar-collapse collapse w-100 order-3 dual-collapse2">
         <ul class="navbar-nav ml-auto">
             <% if(!currentUser){ %>
                 <li class="nav-item">
-                    <form class="form-inline my-2 my-lg-0" action="/recipes" method="GET">
+                    <form class="form-inline my-2 my-lg-0" action="/recipes" method="GET"
+                          style="margin-top: 6px !important;">
                         <input type="text" name="search" placeholder="Search" class="form-control"
                                style="width: 60%;">&nbsp;
                         <button class="fas fa-search btn btn-outline-success my-2 my-sm-0" type="submit"
@@ -47,10 +43,10 @@
                     </form>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="/login">Login</a>
+                    <a class="nav-link" href="/login" style="font-size: 20px;">Login</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="/register">Register</a>
+                    <a class="nav-link" href="/register" style="font-size: 20px;">Register</a>
                 </li>
             <% } else{ %>
                 <li class="nav-item">

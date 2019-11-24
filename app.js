@@ -69,6 +69,46 @@ app.use(function (req, res, next) {
 })
 
 /**
+ * Schema for upVotes
+ */
+
+var upVoteSchema = new mongoose.Schema({
+    ucount: Number,
+    createdAt: {type: Date, default: Date.now()},
+    author: {
+        id: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User"
+        },
+        username: String
+    }
+}, {
+    versionKey: false
+});
+
+var UpVote = mongoose.model("Upvote", upVoteSchema);
+
+/**
+ * Schema for likes
+ */
+
+var likeSchema = new mongoose.Schema({
+    lcount: Number,
+    createdAt: {type: Date, default: Date.now()},
+    author: {
+        id: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User"
+        },
+        username: String
+    }
+}, {
+    versionKey: false
+});
+
+var Like = mongoose.model("Like", likeSchema);
+
+/**
  * Schema setup for recipes
  */
 
@@ -76,8 +116,8 @@ var recipeSchema = new mongoose.Schema({
     recipeName: String,
     recipeURL: String,
     recipeInstructions: String,
-    likes: {type: Number, default: 0},
-    upvotes: {type: Number, default: 0},
+    // likes: {type: Number, default: 0},
+    // upvotes: {type: Number, default: 0},
     createdAt: {type: Date, default: Date.now()},
     author: {
         id: {
@@ -89,6 +129,14 @@ var recipeSchema = new mongoose.Schema({
     comments: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: "Comment"
+    }],
+    likes: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User"
+    }],
+    upvotes: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User"
     }]
 }, {
     versionKey: false
@@ -183,6 +231,7 @@ app.get("/recipes/new", isLoggedIn, function (req, res) {
  */
 
 app.get("/recipes", function (req, res) {
+    var mysort = {likes: -1};
     if (req.query.search) {
         const regex = new RegExp(escapeRegex(req.query.search), 'gi');
         Recipe.find({$or: [{recipeName: regex}, {recipeInstructions: regex}]}, function (error, recipes) {
@@ -195,7 +244,7 @@ app.get("/recipes", function (req, res) {
                     res.render("recipes", {recipes: recipes});
                 }
             }
-        });
+        }).sort(mysort);
     } else {
         Recipe.find({}, function (error, recipes) {
             if (error) {
@@ -212,7 +261,7 @@ app.get("/recipes", function (req, res) {
  */
 
 app.get("/recipes/:id", function (req, res) {
-    Recipe.findById(req.params.id).populate("comments").exec(function (err, result) {
+    Recipe.findById(req.params.id).populate("comments likes").exec(function (err, result) {
         if (err) {
             console.log(err);
         } else {
@@ -518,6 +567,50 @@ app.post("/recipes/:id/upvoted", function (req, res) {
 function escapeRegex(text) {
     return text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
 };
+
+/**
+ * Add a new like
+ */
+
+app.post("/recipes/:id/like", isLoggedIn, function (req, res) {
+    Recipe.findById(req.params.id, function (err, recipes) {
+        if (err) {
+            console.log(err);
+            res.redirect("/recipes");
+        } else {
+            recipes.likes.push(req.user);
+            recipes.save(function (err) {
+                if (err) {
+                    console.log(err);
+                    return res.redirect("/recipes");
+                }
+                return res.redirect("/recipes/" + recipes._id);
+            })
+        }
+    });
+})
+
+/**
+ * Add a new upvote
+ */
+
+app.post("/recipes/:id/upvote", isLoggedIn, function (req, res) {
+    Recipe.findById(req.params.id, function (err, recipes) {
+        if (err) {
+            console.log(err);
+            res.redirect("/recipes");
+        } else {
+            recipes.upvotes.push(req.user);
+            recipes.save(function (err) {
+                if (err) {
+                    console.log(err);
+                    return res.redirect("/recipes");
+                }
+                return res.redirect("/recipes/" + recipes._id);
+            })
+        }
+    });
+})
 
 /**
  * App listening port

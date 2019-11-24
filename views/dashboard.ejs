@@ -57,7 +57,7 @@
                         <span class="badge badge-danger badge-pill">
                             <% var likesCount = 0 %>
                             <% for(var i = 0; i < recipes.length; i++) { %>
-                                <% likesCount = likesCount + recipes[i].likes.valueOf() %>
+                                <% likesCount = likesCount + recipes[i].likes.length %>
                             <% } %>
                             <%= likesCount %>
                         </span>
@@ -67,7 +67,7 @@
                         <span class="badge badge-success badge-pill">
                             <% var voteCount = 0 %>
                             <% for(var i = 0; i < recipes.length; i++) { %>
-                                <% voteCount = voteCount + recipes[i].upvotes %>
+                                <% voteCount = voteCount + recipes[i].upvotes.length %>
                             <% } %>
                             <%= voteCount %>
                         </span>
@@ -110,21 +110,29 @@
                     <li class="list-group-item d-flex justify-content-between align-items-center">
                         <i class="fas fa-heart"> Total Likes</i>
                         <span class="badge badge-danger badge-pill">
-                            <% var likesCount = 0 %>
+                            <% var likesSum = 0 %>
                             <% for(var i = 0; i < recipes.length; i++) { %>
-                                <% likesCount = likesCount + recipes[i].likes.valueOf() %>
+                                <% for(var j = 0;j < recipes[i].likes.length;j++) { %>
+                                    <% if(recipes[i].likes[j].equals(currentUser._id)){ %>
+                                        <% likesSum += 1 %>
+                                    <% } %>
+                                <% } %>
                             <% } %>
-                            <%= likesCount %>
+                            <%= likesSum %>
                         </span>
                     </li>
                     <li class="list-group-item d-flex justify-content-between align-items-center">
                         <i class="fas fa-thumbs-up"> Total Up Votes</i>
                         <span class="badge badge-success badge-pill">
-                            <% var voteCount = 0 %>
+                            <% var votesSum = 0 %>
                             <% for(var i = 0; i < recipes.length; i++) { %>
-                                <% voteCount = voteCount + recipes[i].upvotes %>
+                                <% for(var j = 0;j < recipes[i].upvotes.length;j++) { %>
+                                    <% if(recipes[i].upvotes[j].equals(currentUser._id)){ %>
+                                        <% votesSum += 1 %>
+                                    <% } %>
+                                <% } %>
                             <% } %>
-                            <%= voteCount %>
+                            <%= votesSum %>
                         </span>
                     </li>
                 </ul>

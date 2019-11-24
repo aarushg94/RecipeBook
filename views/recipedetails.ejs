@@ -14,13 +14,13 @@
                         <h2 class="alert-heading"><%= result.recipeName %>
                             <div class="btn-group" role="group" aria-label="Basic example">
                                 <% if(currentUser){ %>
-                                    <form action="/recipes/<%= result._id %>/liked" method="POST">
+                                    <form action="/recipes/<%= result._id %>/like" method="POST">
                                         <button type="submit"
-                                                class="far fa-heart btn btn-danger btn-lg"> <%= result.likes %></button>
+                                                class="far fa-heart btn btn-danger btn-lg"> <%= result.likes.length %></button>
                                     </form>&nbsp;
-                                    <form action="/recipes/<%= result._id %>/upvoted" method="POST">
+                                    <form action="/recipes/<%= result._id %>/upvote" method="POST">
                                         <button type="submit"
-                                                class="far fa-thumbs-up btn btn-primary btn-lg"> <%= result.upvotes %>
+                                                class="far fa-thumbs-up btn btn-primary btn-lg"> <%= result.upvotes.length %>
                                         </button>
                                     </form>
                                 <% } %>

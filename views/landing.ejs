@@ -65,7 +65,7 @@
                 <p></p>
                 <% var likesCount = 0 %>
                 <% for(var i = 0; i < recipes.length; i++) { %>
-                    <% likesCount = likesCount + recipes[i].likes %>
+                    <% likesCount = likesCount + recipes[i].likes.length %>
                 <% } %>
                 <%= likesCount %> Likes
             </h1>
@@ -75,7 +75,7 @@
                 <p></p>
                 <% var voteCount = 0 %>
                 <% for(var i = 0; i < recipes.length; i++) { %>
-                    <% voteCount = voteCount + recipes[i].upvotes %>
+                    <% voteCount = voteCount + recipes[i].upvotes.length %>
                 <% } %>
                 <%= voteCount %> Upvotes
             </h1>

@@ -3,39 +3,25 @@
 <head>
     <title>RecipeBook</title>
     <link rel="icon" href="/images/favicon.png">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
-    <link rel="stylesheet" href="style.css">
-    <script src="https://kit.fontawesome.com/f795020668.js" crossorigin="anonymous"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-    <style>
-        h1 {
-            padding: 80px !important;
-            text-align: center;
-        }
-
-        .container {
-            min-width: 80%;
-        }
-
-        .background {
-            color: white;
-        }
-    </style>
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <script src="/js/jquery.min.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="/css/landing.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css">
 </head>
-<body class="background"
-      style="background: url(/images/purpledark.png);">
-<div class="container">
+<body class="background">
+<div class="container" id="landing-header">
     <div class="row">
         <div class="col-lg-6" id="users">
             <h1><i class="fas fa-users" style="color: gold;"></i>
                 <p></p>
-                <%= users.length %> Unique Users
+                <%= users.length %> <span class="headers"> Unique Users</span>
             </h1>
         </div>
         <div class="col-lg-6 recipes" id="recipes">
             <h1><i class="fas fa-utensils" style="color: coral;"></i>
                 <p></p>
-                <%= recipes.length %> Recipes
+                <%= recipes.length %> <span class="headers"> Recipes</span>
             </h1>
         </div>
     </div>
@@ -67,7 +53,7 @@
                 <% for(var i = 0; i < recipes.length; i++) { %>
                     <% likesCount = likesCount + recipes[i].likes.length %>
                 <% } %>
-                <%= likesCount %> Likes
+                <%= likesCount %> <span class="headers"> Likes</span>
             </h1>
         </div>
         <div class="col-lg-4" id="upvotes">
@@ -77,16 +63,23 @@
                 <% for(var i = 0; i < recipes.length; i++) { %>
                     <% voteCount = voteCount + recipes[i].upvotes.length %>
                 <% } %>
-                <%= voteCount %> Upvotes
+                <%= voteCount %> <span class="headers"> Upvotes</span>
             </h1>
         </div>
         <div class="col-lg-4" id="tags">
             <h1><i class="fas fa-tags" style="color: greenyellow;"></i>
                 <p></p>
-                <%= comments.length %> Tags
+                <%= comments.length %> <span class="headers"> Tags</span>
             </h1>
         </div>
     </div>
 </div>
+<!--<ul class="slideshow">-->
+<!--    <li></li>-->
+<!--    <li></li>-->
+<!--    <li></li>-->
+<!--    <li></li>-->
+<!--    <li></li>-->
+<!--</ul>-->
 </body>
 </html>

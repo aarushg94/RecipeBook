@@ -1,10 +1,17 @@
 var express = require("express");
 var app = express();
-app.use('/', express.static(__dirname + '/www')); // redirect root
+
+/**
+ * Static folders and directories to be used
+ */
+
+app.use('/', express.static(__dirname + '/www'));
 app.use('/js', express.static(__dirname + '/node_modules/bootstrap/dist/js'));
 app.use('/js', express.static(__dirname + '/node_modules/jquery/dist'));
 app.use('/css', express.static(__dirname + '/node_modules/bootstrap/dist/css'));
 app.use('/images', express.static(__dirname + '/images'))
+app.use('/css', express.static(__dirname + '/css'))
+
 var bodyParser = require("body-parser");
 var flash = require("connect-flash");
 app.use(bodyParser.urlencoded({extended: true}));
@@ -12,6 +19,7 @@ app.use(bodyParser.json());
 app.locals.moment = require('moment');
 var mongoose = require("mongoose");
 var passport = require("passport");
+
 var LocalStrategy = require("passport-local");
 var passportLocalMongoose = require("passport-local-mongoose");
 methodOverride = require("method-override");
@@ -23,11 +31,19 @@ app.use(expressSanitizer());
 app.use(flash());
 var ObjectId = require('mongodb').ObjectId;
 
+/**
+ * Encoding password for users
+ */
+
 app.use(require("express-session")({
     secret: "this app belongs to aarush",
     resave: false,
     saveUninitialized: false
 }));
+
+/**
+ * Response Messages via flash
+ */
 
 app.use(function (req, res, next) {
     res.locals.currentUser = req.user;

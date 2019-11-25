@@ -27,5 +27,8 @@
     "passport": "^0.4.0",
     "passport-local": "^1.0.0",
     "passport-local-mongoose": "^5.0.1"
+  },
+  "devDependencies": {
+    "@fortawesome/fontawesome-free": "^5.11.2"
   }
 }

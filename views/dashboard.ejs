@@ -1,4 +1,11 @@
 <% include partials/header %>
+<script>
+    function imgError(image) {
+        image.onerror = "";
+        image.src = "/images/noimage.png";
+        return true;
+    }
+</script>
 <style>
     .badge-pill {
         font-size: 15px;
@@ -158,7 +165,8 @@
                             <div class="card mb-3" style="min-width: 100% !important;">
                                 <div class="row no-gutters">
                                     <div class="col-md-3">
-                                        <img src="<%= recipes[i].recipeURL %>" class="card-img">
+                                        <img src="<%= recipes[i].recipeURL %>" onerror="imgError(this);"
+                                             class="card-img">
                                     </div>
                                     <div class="col-md-9">
                                         <div class="card-body">
@@ -201,7 +209,7 @@
         </ul>
     </div>
 </div>
-
+<p></p>
 <p></p>
 
 <% include partials/footer %>

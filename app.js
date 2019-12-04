@@ -208,7 +208,8 @@ app.get("/", function (req, res) {
                         if (error) {
                             console.log(error)
                         } else {
-                            res.render("landing", {users: users, comments: comments, recipes: recipes});
+                            // res.render("landing", {users: users, comments: comments, recipes: recipes});
+                            res.redirect("/recipes");
                         }
                     })
                 }
@@ -262,8 +263,8 @@ app.get("/recipes/new", isLoggedIn, function (req, res) {
  */
 
 app.get("/recipes", function (req, res) {
-    var mysort = {likes: -1};
     Recipe.find().populate("comments likes").exec(function (err, result) {
+        console.log(result[0].likes.length)
         if (req.query.search) {
             const words = req.query.search.trim().split(' ');
             var searchWord = stopWord.removeStopwords(words, stopWords);
@@ -278,11 +279,9 @@ app.get("/recipes", function (req, res) {
                         if (recipes.length > 0) {
                             req.flash("success", "Displaying search results");
                             res.render("recipes", {recipes: recipes, success: req.flash("success")});
-                            // res.render("recipes", {recipes: recipes, messages: "Displaying after success"});
-                            // res.redirect("/recipes");
                         }
                     }
-                }).sort(mysort);
+                }).sort({likes: -1});
             } else {
                 const regex = new RegExp((' '), 'gi');
                 Recipe.find({$or: [{recipeName: regex}, {recipeInstructions: regex}, {stopWordsDescription: regex}]}, function (error, recipes) {
@@ -291,9 +290,8 @@ app.get("/recipes", function (req, res) {
                     } else {
                         req.flash("error", "No result found for search, displaying all recipes");
                         res.render("recipes", {recipes: recipes, error: req.flash("error")});
-                        // res.redirect("/recipes");
                     }
-                }).sort(mysort);
+                }).sort({likes: -1});
             }
         } else {
             Recipe.find({}, function (error, recipes) {
@@ -604,7 +602,7 @@ app.post("/recipes/:id/upvoted", function (req, res) {
             res.redirect("/recipes")
         } else {
             req.flash("success", "You have upvoted this recipe")
-            res.redirect("/recipes/" + req.params.id);
+            res.redirect("/recipes/" + req.params.id, {success: req.flash("success")});
         }
     })
 })

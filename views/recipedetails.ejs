@@ -69,12 +69,14 @@
                                     Tags
                                 </h3>
                             </div>
-                            <div class="col-lg-3">
-                                <form action="/recipes/<%= result.id %>/comments/new" method="GET">
-                                    <button class="btn btn-sm btn-primary" type="submit">Add New Tag
-                                    </button>
-                                </form>
-                            </div>
+                            <% if (currentUser && !(result.author.id).equals(currentUser._id)){ %>
+                                <div class="col-lg-3">
+                                    <form action="/recipes/<%= result.id %>/comments/new" method="GET">
+                                        <button class="btn btn-sm btn-primary" type="submit">Add New Tag
+                                        </button>
+                                    </form>
+                                </div>
+                            <% } %>
                         </div>
                     </div>
                     <hr>

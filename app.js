@@ -264,7 +264,6 @@ app.get("/recipes/new", isLoggedIn, function (req, res) {
 
 app.get("/recipes", function (req, res) {
     Recipe.find().populate("comments likes").exec(function (err, result) {
-        console.log(result[0].likes.length)
         if (req.query.search) {
             const words = req.query.search.trim().split(' ');
             var searchWord = stopWord.removeStopwords(words, stopWords);
@@ -273,12 +272,16 @@ app.get("/recipes", function (req, res) {
             if (searchWord.length !== 0) {
                 const regex = new RegExp(escapeRegex(searchWord[0]), 'gi');
                 Recipe.find({$or: [{recipeName: regex}, {recipeInstructions: regex}, {stopWordsDescription: regex}]}, function (error, recipes) {
+                    console.log(recipes.length);
                     if (error) {
                         console.log(error);
                     } else {
                         if (recipes.length > 0) {
                             req.flash("success", "Displaying search results");
                             res.render("recipes", {recipes: recipes, success: req.flash("success")});
+                        } else {
+                            req.flash("error", "No search results found, displaying all recipes");
+                            res.redirect("/recipes");
                         }
                     }
                 }).sort({likes: -1});
@@ -288,8 +291,8 @@ app.get("/recipes", function (req, res) {
                     if (error) {
                         console.log(error);
                     } else {
-                        req.flash("error", "No result found for search, displaying all recipes");
-                        res.render("recipes", {recipes: recipes, error: req.flash("error")});
+                        req.flash("error", "No search results found, displaying all recipes");
+                        res.redirect("/recipes");
                     }
                 }).sort({likes: -1});
             }
@@ -1079,6 +1082,7 @@ var stopWords = new Array(
     'why',
     'will',
     'with',
+    'please',
     'within',
     'without',
     'work',

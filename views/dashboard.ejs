@@ -23,6 +23,19 @@
     .fas {
         font-size: 18px;
     }
+
+    .card-img {
+        width: 117px;
+        height: 117px;
+    }
+
+    .card-title {
+        font-weight: 600;
+    }
+
+    .subheader {
+        font-size: 18px;
+    }
 </style>
 
 <div class="container" style="text-align:  center !important;min-width: 100% !important;">
@@ -155,6 +168,153 @@
         <ul class="list-group">
             <li class="list-group-item d-flex justify-content-between align-items-center" style="font-weight:
                 bold;justify-content: center !important;font-size: 20px;">
+                Top 3 Recipes By Likes
+            </li>
+            <p></p>
+            <% var likesArray = []; %>
+            <% for(var i = 0;i < recipes.length;i++) { %>
+                <% likesArray.push({
+                    "id": recipes[i].id,
+                    "name": recipes[i].recipeName,
+                    "likesCount": recipes[i].likes.length,
+                    "recipeURL": recipes[i].recipeURL
+                }) %>
+            <% } %>
+            <% likesArray = (likesArray.sort(function (a, b) {
+                return b.likesCount - a.likesCount;
+            })) %>
+            <div class="row">
+                <% for(var i = 0;i < 3;i++) { %>
+                    <div class="col-lg-4">
+                        <div class="card mb-3" style="min-width: 100% !important;">
+                            <div class="row no-gutters">
+                                <div class="col-md-3">
+                                    <img src="<%= likesArray[i].recipeURL %>" onerror="imgError(this);"
+                                         class="card-img">
+                                </div>
+                                <div class="col-md-9">
+                                    <div class="card-body">
+                                        <h5 class="card-title">
+                                            <%= likesArray[i].name %><p></p>
+                                            <span class="subheader"> <i class="fas fa-heart"
+                                                                        style="color: red;"></i> <%= likesArray[i].likesCount %></span>
+                                        </h5>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <% } %>
+            </div>
+        </ul>
+    </div>
+</div>
+
+<p></p>
+
+<div class="container" style="min-width: 77%;">
+    <div class="row">
+        <ul class="list-group">
+            <li class="list-group-item d-flex justify-content-between align-items-center" style="font-weight:
+                bold;justify-content: center !important;font-size: 20px;">
+                Top 3 Recipes By UpVotes
+            </li>
+            <p></p>
+            <% var UpVotesArray = []; %>
+            <% for(var i = 0;i < recipes.length;i++) { %>
+                <% UpVotesArray.push({
+                    "id": recipes[i].id,
+                    "name": recipes[i].recipeName,
+                    "upVotesCount": recipes[i].upvotes.length,
+                    "recipeURL": recipes[i].recipeURL
+                }) %>
+            <% } %>
+            <% UpVotesArray = (UpVotesArray.sort(function (a, b) {
+                return b.upVotesCount - a.upVotesCount;
+            })) %>
+            <div class="row">
+                <% for(var i = 0;i < 3;i++) { %>
+                    <div class="col-lg-4">
+                        <div class="card mb-3" style="min-width: 100% !important;">
+                            <div class="row no-gutters">
+                                <div class="col-md-3">
+                                    <img src="<%= UpVotesArray[i].recipeURL %>" onerror="imgError(this);"
+                                         class="card-img">
+                                </div>
+                                <div class="col-md-9">
+                                    <div class="card-body">
+                                        <h5 class="card-title">
+                                            <%= UpVotesArray[i].name %><p></p>
+                                            <span class="subheader"> <i class="fas fa-thumbs-up"
+                                                                        style="color: deepskyblue;"></i> <%= UpVotesArray[i].upVotesCount %></span>
+                                        </h5>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <% } %>
+            </div>
+        </ul>
+    </div>
+</div>
+
+<p></p>
+
+<div class="container" style="min-width: 77%;">
+    <div class="row">
+        <ul class="list-group">
+            <li class="list-group-item d-flex justify-content-between align-items-center" style="font-weight:
+                bold;justify-content: center !important;font-size: 20px;">
+                Top 3 Recipes By Tags
+            </li>
+            <p></p>
+            <% var TagsArray = []; %>
+            <% for(var i = 0;i < recipes.length;i++) { %>
+                <% TagsArray.push({
+                    "id": recipes[i].id,
+                    "name": recipes[i].recipeName,
+                    "tagsCount": recipes[i].comments.length,
+                    "recipeURL": recipes[i].recipeURL
+                }) %>
+            <% } %>
+            <% TagsArray = (TagsArray.sort(function (a, b) {
+                return b.tagsCount - a.tagsCount;
+            })) %>
+            <div class="row">
+                <% for(var i = 0;i < 3;i++) { %>
+                    <div class="col-lg-4">
+                        <div class="card mb-3" style="min-width: 100% !important;">
+                            <div class="row no-gutters">
+                                <div class="col-md-3">
+                                    <img src="<%= TagsArray[i].recipeURL %>" onerror="imgError(this);"
+                                         class="card-img">
+                                </div>
+                                <div class="col-md-9">
+                                    <div class="card-body">
+                                        <h5 class="card-title">
+                                            <%= TagsArray[i].name %><p></p>
+                                            <span class="subheader"> <i class="fas fa-tags"
+                                                                        style="color: greenyellow;"></i> <%= TagsArray[i].tagsCount %></span>
+                                        </h5>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <% } %>
+            </div>
+        </ul>
+    </div>
+</div>
+
+<p></p>
+
+<div class="container" style="min-width: 77%;">
+    <div class="row">
+        <ul class="list-group">
+            <li class="list-group-item d-flex justify-content-between align-items-center" style="font-weight:
+                bold;justify-content: center !important;font-size: 20px;">
                 Recipes Added By You
             </li>
             <p></p>
@@ -198,7 +358,7 @@
             <div class="row">
                 <% for(var i = 0;i < comments.length;i++) { %>
                     <% if(comments[i].author.username.match(currentUser.username)){ %>
-                        <div class="col-sm-3">
+                        <div class="col-sm-2">
                             <li class="list-group-item d-flex justify-content-between align-items-center">
                                 <%= comments[i].text %>
                             </li>

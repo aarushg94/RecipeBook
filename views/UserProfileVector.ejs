@@ -1,0 +1,16 @@
+<% include partials/header.ejs %>
+
+<div class="container" style="min-width: 98%">
+    <h1><%= currentUser.username %></h1>
+    <p></p>
+
+    <% for(var i = 0;i < recipes.length;i++) { %>
+        <% for(var j = 0;j < recipes[i].likes.length;j++){ %><p></p>
+        <% if((currentUser.username) == ((recipes[i].likes[j].username))) { %>
+            <%= recipes[i].recipeName %>
+        <% } %>
+        <% } %>
+    <% } %>
+</div>
+
+<% include partials/footer.ejs %>

@@ -26,6 +26,7 @@ app.use(bodyParser.json());
 app.locals.moment = require('moment');
 var mongoose = require("mongoose");
 var passport = require("passport");
+var lodash = require("lodash");
 
 var LocalStrategy = require("passport-local");
 var passportLocalMongoose = require("passport-local-mongoose");
@@ -226,9 +227,15 @@ app.post("/recipes", isLoggedIn, function (req, res) {
     var recipename = req.body.recipeName;
     var recipeURL = req.body.recipeURL;
     var recipeInstructions = req.body.recipeInstructions;
-    const words = recipeInstructions.split(' ');
+    var nonStopWords = escapeRegex(recipeInstructions);
+    const words = nonStopWords.split(' ');
     var searchWords = stopWord.removeStopwords(words, stopWords);
-    // console.log(searchWords);
+    var correctWordsArray = [];
+    for (var i = 0; i < searchWords.length; i++) {
+        if (searchWords[i] != '') {
+            correctWordsArray.push(searchWords[i].toLowerCase());
+        }
+    }
     var author = {
         id: req.user._id,
         username: req.user.username
@@ -237,7 +244,7 @@ app.post("/recipes", isLoggedIn, function (req, res) {
         recipeName: recipename,
         recipeURL: recipeURL,
         recipeInstructions: recipeInstructions,
-        stopWordsDescription: searchWords.toString(),
+        stopWordsDescription: correctWordsArray.toString(),
         author: author
     };
     Recipe.create(newRecipe, function (err, Recipe) {
@@ -262,51 +269,85 @@ app.get("/recipes/new", isLoggedIn, function (req, res) {
  * Route to get all recipes
  */
 
+const filterRecipeComments = (searchQuery, recipeData) => {
+    let result = [];
+    searchQuery.map((searchQuery) => {
+        recipeData.filter((data) => {
+            return data.comments.filter((comment) => {
+                if (comment.text.match(searchQuery)) {
+                    result.push(data)
+                }
+            })
+        })
+    })
+
+    return result;
+}
+
+
 app.get("/recipes", function (req, res) {
-    Recipe.find().populate("comments likes").exec(function (err, result) {
-        if (req.query.search) {
-            const words = req.query.search.trim().split(' ');
-            var searchWord = stopWord.removeStopwords(words, stopWords);
-            console.log(searchWord[0]);
-            const regex = null;
-            if (searchWord.length !== 0) {
-                const regex = new RegExp(escapeRegex(searchWord[0]), 'gi');
-                Recipe.find({$or: [{recipeName: regex}, {recipeInstructions: regex}, {stopWordsDescription: regex}]}, function (error, recipes) {
-                    console.log(recipes.length);
-                    if (error) {
-                        console.log(error);
-                    } else {
-                        if (recipes.length > 0) {
+    var recipeFound = false;
+    Recipe.find().populate('comments').exec(function (err, result) {
+            if (req.query.search) {
+                const words = req.query.search.trim().split(' ');
+                var searchWord = stopWord.removeStopwords(words, stopWords);
+                const commentsResult = filterRecipeComments(searchWord, result);
+                if (searchWord.length !== 0) {
+                    for (var i = 0; i < searchWord.length; i++) {
+                        let recipeData = [];
+                        const regex = new RegExp(escapeRegex(searchWord[i]), 'gi')
+                        if (recipeData.length) {
                             req.flash("success", "Displaying search results");
-                            res.render("recipes", {recipes: recipes, success: req.flash("success")});
+                            recipeData = lodash.union(recipeData, commentsResult, '_id');
+                            return res.render("recipes", {recipes: recipeData, success: req.flash("success")});
+                            break;
+                        }
+                        return Recipe.find(
+                            {
+                                $or: [{recipeName: regex}, {recipeInstructions: regex}, {stopWordsDescription: regex}]
+                            }, function (error, recipes) {
+                                if (error) {
+                                    console.log(error);
+                                } else {
+                                    if (searchWord.length > 0 || recipes.length > 0) {
+                                        recipeData = recipes;
+                                        req.flash("success", "Displaying search results");
+                                        recipeFound = true;
+                                        res.render("recipes", {
+                                            recipes: lodash.union(recipeData, commentsResult, '_id'),
+                                            success: req.flash("success")
+                                        });
+                                    } else {
+                                        req.flash("error", "No search results found, displaying all recipes");
+                                        res.redirect("/recipes");
+                                    }
+                                }
+                            })
+                    }
+                } else {
+                    const regex = new RegExp((' '), 'gi');
+                    Recipe.find({$or: [{recipeName: regex}, {recipeInstructions: regex}, {stopWordsDescription: regex}]}, function (error, recipes) {
+                        if (error) {
+                            console.log(error);
                         } else {
                             req.flash("error", "No search results found, displaying all recipes");
                             res.redirect("/recipes");
                         }
-                    }
-                }).sort({likes: -1});
+                    })
+                }
             } else {
-                const regex = new RegExp((' '), 'gi');
-                Recipe.find({$or: [{recipeName: regex}, {recipeInstructions: regex}, {stopWordsDescription: regex}]}, function (error, recipes) {
+                Recipe.find({}, function (error, recipes) {
                     if (error) {
                         console.log(error);
                     } else {
-                        req.flash("error", "No search results found, displaying all recipes");
-                        res.redirect("/recipes");
+                        res.render("recipes", {recipes: recipes});
                     }
-                }).sort({likes: -1});
+                });
             }
-        } else {
-            Recipe.find({}, function (error, recipes) {
-                if (error) {
-                    console.log(error);
-                } else {
-                    res.render("recipes", {recipes: recipes});
-                }
-            });
         }
-    })
-});
+    )
+})
+;
 
 /**
  * Details of a recipe
@@ -655,23 +696,11 @@ app.post("/recipes/:id/upvote", isLoggedIn, function (req, res) {
 })
 
 /**
- * Fuzzy searching with MongoDB
- * Source --> https://stackoverflow.com/questions/38421664/fuzzy-searching-with-mongodb
- * @param text
- * @returns {void | string}
- */
-
-function escapeRegex(text) {
-    return text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
-};
-
-/**
  * List of Stop words
  * Source --> https://geeklad.com/remove-stop-words-in-javascript
  */
 
 var stopWords = new Array(
-    'a',
     'about',
     'above',
     'across',
@@ -1042,6 +1071,8 @@ var stopWords = new Array(
     'took',
     'toward',
     'turn',
+    'okay',
+    'bye',
     'turned',
     'turning',
     'turns',
@@ -1093,6 +1124,8 @@ var stopWords = new Array(
     'x',
     'y',
     'year',
+    'recipe',
+    'recipes',
     'years',
     'yet',
     'you',
@@ -1102,8 +1135,60 @@ var stopWords = new Array(
     'your',
     'yours',
     'z',
-    'search'
+    'search',
+    ' ',
+    '  '
 )
+
+/**
+ * Fuzzy searching with MongoDB
+ * Source --> https://stackoverflow.com/questions/38421664/fuzzy-searching-with-mongodb
+ * @param text
+ * @returns {void | string}
+ */
+
+function escapeRegex(text) {
+    return text.replace(/[-[\]{}()*+?.,^$|#]/g, " ");
+};
+
+/**
+ * UserProfileVector
+ */
+
+app.get("/userprofilevector", isLoggedIn, function (req, res) {
+    Recipe.find().populate("comments likes").exec(function (err, recipes) {
+        if (err) {
+            console.log(error);
+        } else {
+            res.render("UserProfileVector", {recipes: recipes});
+        }
+    });
+});
+
+/**
+ * Create Suggestions
+ */
+
+app.get("/suggestions", isLoggedIn, function (req, res) {
+
+    User.find({}, function (error, users) {
+        if (error) {
+            console.log(error);
+        } else {
+            Recipe.find().populate("comments likes").exec(function (err, recipes) {
+                if (err) {
+                    console.log(error);
+                } else {
+                    res.render("Suggestions", {recipes: recipes, users: users});
+                }
+            });
+        }
+    });
+});
+
+/**
+ * Get Suggestions
+ */
 
 /**
  * App listening port

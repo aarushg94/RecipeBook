@@ -1,0 +1,103 @@
+<% include partials/header.ejs %>
+
+<div class="container" style="min-width: 98%">
+
+    <% for (var i = 0; i < recipes.length; i++) { %>
+        <br>
+        <%= "---------------------" %>
+        <br>
+        <%= recipes[i].recipeName + "==>" + recipes[i].id %><p></p>
+        <% for(var j = 0;j < recipes[i].likes.length;j++){ %>
+            <%= "=>" + recipes[i].likes[j]._id %><br>
+        <% } %>
+    <% } %>
+
+    <% var userIds = []; %>
+
+    <% for(var i = 0;i < users.length;i++){ %>
+        <% userIds.push(users[i]._id); %>
+    <% } %>
+
+    <% var userLikedContent = []; %>
+    <% for (var i = 0; i < recipes.length; i++) { %>
+        <% for (var j = 0; j < recipes[i].likes.length; j++) { %>
+            <% if((currentUser.username) == ((recipes[i].likes[j].username))) { %>
+                <% if(!userLikedContent.includes(recipes[i].id)){ %>
+                    <% userLikedContent.push(recipes[i].id) %><p></p>
+                <% } %>
+            <% } %>
+        <% } %>
+    <% } %>
+    <% let userLikedContentSet = new Set(userLikedContent); %>
+    <%= console.log("userLikedContentSet") %>
+    <%= console.log(userLikedContentSet) %>
+
+    <!--
+    Intersection & Union of Sets:
+    https://stackoverflow.com/questions/1723168/what-is-the-fastest-or-most-elegant-way-to-compute-a-set-difference-using-javasc
+    -->
+
+    <% var recipeListofUserID = []; %>
+    <% let differenceSet = []; %>
+            <% for(var i = 0;i < recipes.length;i++){ %>
+
+    <script>
+        function imgError(image) {
+            image.onerror = "";
+            image.src = "/images/noimage.png";
+            return true;
+        }
+    </script>
+
+    <div class="container" style="min-width: 95%;">
+
+        <div class="row">
+            <% for (var i = 0; i < userIds.length; i++) { %>
+                <% for (var j = 0; j < recipes.length; j++) { %>
+                    <% for (var k = 0; k < recipes[j].likes.length; k++) { %>
+                        <% if (userIds[i].equals((recipes[j].likes[k]._id))) { %>
+                            <% if(!recipeListofUserID.includes(recipes[j].recipeName)){ %>
+                                <% recipeListofUserID.push(recipes[j].id) %>
+                            <% } %>
+                        <% } %>
+                    <% } %>
+                <% } %>
+                <% let recipeListofUserIDSet = new Set(recipeListofUserID); %>
+                <% let intersectionSet = [...userLikedContentSet].filter(x => recipeListofUserIDSet.has(x)); %>
+                <% if(!intersectionSet){ %>
+                    <%= console.log("HELLO") %>
+                <% } else { %>
+                    <%= console.log("recipeListofUserIDSet") %>
+                    <%= console.log(recipeListofUserIDSet) %>
+                    <% differenceSet = [...userLikedContentSet].filter(x => !recipeListofUserIDSet.has(x)); %>
+                    <%= console.log("differenceSet") %>
+                    <%= console.log(differenceSet) %>
+                <% } %>
+                <% recipeListofUserID = []; %>
+            <% } %>
+        <% for (var j = 0;j < differenceSet.length;j++){ %>
+                    <% if(recipes[i].id == differenceSet[j]){ %>
+                        <div class="col-lg-2 col-sm-offset-1">
+                            <figure class="figure" style="border: 1px solid gray;padding: 10px;">
+                                <img class="figure-img img-fluid rounded" style="width: 250px; height: 250px;"
+                                     src="<%= recipes[i].recipeURL %>" onerror="imgError(this);">
+                                <hr>
+                                <figcaption class="figure-caption text-center">
+                                    <h5>
+                                        <div class="btn-group" role="group" aria-label="Basic example">
+                                            <a href="/recipes/<%= recipes[i]._id %>" type="button"
+                                               class="btn btn-outline-primary btn-sm"><%= recipes[i].recipeName %></a>
+                                        </div>
+                                    </h5>
+                                </figcaption>
+                            </figure>
+                        </div>
+                    <% } %>
+                <% } %>
+            <% } %>
+        </div>
+        <p></p>
+    </div>
+</div>
+
+<% include partials/footer.ejs %>

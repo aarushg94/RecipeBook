@@ -1231,6 +1231,7 @@ const calculateSuggestions = (recipeData, usersData) => {
     usersData.map((a) => {
         recipeData.map((recipe) => {
             const foundIndex = getDataFoundIndex(recipe.likes, a._id);
+            // console.log(foundIndex, '======', recipe.likes)
             const copiedLikes = [...recipe.likes]
             if (foundIndex > -1) {
                 copiedLikes.splice(foundIndex, 1);
@@ -1238,6 +1239,7 @@ const calculateSuggestions = (recipeData, usersData) => {
                     copiedLikes.map((like) => {
                         recipeData.map((b) => {
                             if (getDataFoundIndex(b.likes, like._id) > -1 && getDataFoundIndex(b.likes, a._id) === -1) {
+                                console.log(usersSuggestions[a._id.toString()], '-----')
                                 if (Object.keys(usersSuggestions).length && usersSuggestions[a._id.toString()]) {
                                     if (usersSuggestions[a._id.toString()].indexOf(b._id.toString()) === -1) {
                                         usersSuggestions[a._id.toString()].push(b._id.toString())
@@ -1266,9 +1268,9 @@ app.get("/calculatesuggestions", function (req, res) {
                 } else {
                     var check = calculateSuggestions(recipes, users);
                     const userIds = Object.keys(check);
-                    // if (UserSuggestions.find({})) {
-                    //     conn.collection("userSuggestions").drop();
-                    // }
+                    if (UserSuggestions.find({})) {
+                        conn.collection("userSuggestions").drop();
+                    }
                     userIds.map((id) => {
                         UserSuggestions.create({userId: id, suggestionsList: check[id]})
                     })
@@ -1317,6 +1319,7 @@ const calculateAVG = (recipeData, userIds) => {
     let counts = {};
     userIds = userIds.map((o) => o._id.toString())
     const main = []
+    console.log(userIds);
     userIds.map((id) => {
         recipeData.map((recipe) => {
             const foundIndex = recipe.likes.map((a) => a._id.toString()).indexOf(id);
@@ -1374,6 +1377,23 @@ app.get("/calculateavg", function (req, res) {
         }
     });
 });
+
+// app.get("/getavg", function (req, res) {
+//     User.find({}, '_id', function (error, users) {
+//         if (error) {
+//             console.log(error);
+//         } else {
+//             Recipe.find({}, function (error, recipes) {
+//                 if (error) {
+//                     console.log(error)
+//                 } else {
+//                     console.log(calculateAVG(recipes, users))
+//                     res.send("Hello");
+//                 }
+//             })
+//         }
+//     });
+// })
 
 /**
  * App listening port

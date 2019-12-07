@@ -1,4 +1,5 @@
 <% include partials/header %>
+
 <script>
     function imgError(image) {
         image.onerror = "";
@@ -180,11 +181,14 @@
                     "recipeURL": recipes[i].recipeURL
                 }) %>
             <% } %>
+
             <% likesArray = (likesArray.sort(function (a, b) {
                 return b.likesCount - a.likesCount;
             })) %>
+
             <div class="row">
-                <% for(var i = 0;i < 3;i++) { %>
+                <% for(var i = 0;i < likesArray.length;i++) { %>
+                    <% if (i == 3) break; %>
                     <div class="col-lg-4">
                         <div class="card mb-3" style="min-width: 100% !important;">
                             <div class="row no-gutters">
@@ -233,7 +237,8 @@
                 return b.upVotesCount - a.upVotesCount;
             })) %>
             <div class="row">
-                <% for(var i = 0;i < 3;i++) { %>
+                <% for(var i = 0;i < UpVotesArray.length;i++) { %>
+                    <% if (i == 3) break; %>
                     <div class="col-lg-4">
                         <div class="card mb-3" style="min-width: 100% !important;">
                             <div class="row no-gutters">
@@ -282,7 +287,8 @@
                 return b.tagsCount - a.tagsCount;
             })) %>
             <div class="row">
-                <% for(var i = 0;i < 3;i++) { %>
+                <% for(var i = 0;i < TagsArray.length;i++) { %>
+                    <% if (i == 3) break; %>
                     <div class="col-lg-4">
                         <div class="card mb-3" style="min-width: 100% !important;">
                             <div class="row no-gutters">

@@ -173,6 +173,33 @@ var recipeSchema = new mongoose.Schema({
 var Recipe = mongoose.model("Recipe", recipeSchema, "recipesDetails");
 
 /**
+ * Schema setup for userSuggestions
+ */
+
+var userSuggestions = new mongoose.Schema({
+    userId: String,
+    suggestionsList: []
+}, {
+    versionKey: false
+});
+
+var UserSuggestions = mongoose.model("UserSuggestions", userSuggestions, "userSuggestions");
+
+/**
+ * Schema setup for userSuggestions
+ */
+
+var averageUserProfile = new mongoose.Schema({
+    userId: String,
+    wordList: []
+}, {
+    versionKey: false
+});
+
+var AverageUserProfile = mongoose.model("averageUserProfile", averageUserProfile, "averageUserProfile");
+
+
+/**
  * Schema setup for comments
  */
 
@@ -233,7 +260,9 @@ app.post("/recipes", isLoggedIn, function (req, res) {
     var correctWordsArray = [];
     for (var i = 0; i < searchWords.length; i++) {
         if (searchWords[i] != '') {
-            correctWordsArray.push(searchWords[i].toLowerCase());
+            if (!correctWordsArray.includes(searchWords[i])) {
+                correctWordsArray.push(searchWords[i].toLowerCase());
+            }
         }
     }
     var author = {
@@ -473,7 +502,7 @@ app.post("/register", function (req, res) {
             res.render("register", {error: req.flash("error")});
         }
         passport.authenticate("local")(req, res, function () {
-            req.flash("success", "Registration successful, Welcome to Social Web 2.0")
+            req.flash("success", "Registration successful, Welcome to RecipeBook")
             res.redirect("/recipes");
         });
     });
@@ -701,6 +730,7 @@ app.post("/recipes/:id/upvote", isLoggedIn, function (req, res) {
  */
 
 var stopWords = new Array(
+    'a',
     'about',
     'above',
     'across',
@@ -1187,8 +1217,163 @@ app.get("/suggestions", isLoggedIn, function (req, res) {
 });
 
 /**
- * Get Suggestions
+ * Calcuate Suggestions and push to Mongo collection
  */
+
+const getDataFoundIndex = (array, id) => {
+    return array.map(function (x) {
+        return x._id.toString();
+    }).indexOf(id.toString());
+}
+
+const calculateSuggestions = (recipeData, usersData) => {
+    const usersSuggestions = {};
+    usersData.map((a) => {
+        recipeData.map((recipe) => {
+            const foundIndex = getDataFoundIndex(recipe.likes, a._id);
+            const copiedLikes = [...recipe.likes]
+            if (foundIndex > -1) {
+                copiedLikes.splice(foundIndex, 1);
+                if (recipe.likes.length) {
+                    copiedLikes.map((like) => {
+                        recipeData.map((b) => {
+                            if (getDataFoundIndex(b.likes, like._id) > -1 && getDataFoundIndex(b.likes, a._id) === -1) {
+                                if (Object.keys(usersSuggestions).length && usersSuggestions[a._id.toString()]) {
+                                    if (usersSuggestions[a._id.toString()].indexOf(b._id.toString()) === -1) {
+                                        usersSuggestions[a._id.toString()].push(b._id.toString())
+                                    }
+                                } else {
+                                    usersSuggestions[a._id.toString()] = [b._id.toString()]
+                                }
+                            }
+                        })
+                    })
+                }
+            }
+        })
+    })
+    return usersSuggestions
+}
+
+app.get("/calculatesuggestions", function (req, res) {
+    User.find({}, function (error, users) {
+        if (error) {
+            console.log(error);
+        } else {
+            Recipe.find().populate("comments likes").exec(function (err, recipes) {
+                if (err) {
+                    console.log(error);
+                } else {
+                    var check = calculateSuggestions(recipes, users);
+                    const userIds = Object.keys(check);
+                    // if (UserSuggestions.find({})) {
+                    //     conn.collection("userSuggestions").drop();
+                    // }
+                    userIds.map((id) => {
+                        UserSuggestions.create({userId: id, suggestionsList: check[id]})
+                    })
+                    res.send("Suggestions calculated and pushed to Mongo");
+                }
+            });
+        }
+    });
+});
+
+/**
+ * Route to get suggestions
+ */
+
+app.get("/getsuggestions", isLoggedIn, function (req, res) {
+    User.find({}, function (error, users) {
+        if (error) {
+            console.log(error);
+        } else {
+            UserSuggestions.find({}, function (error, usersuggestions) {
+                if (error) {
+                    console.log(error);
+                } else {
+                    Recipe.find({}, function (error, recipes) {
+                        if (error) {
+                            console.log(error)
+                        } else {
+                            res.render("Suggestions", {
+                                users: users,
+                                usersuggestions: usersuggestions,
+                                recipes: recipes
+                            });
+                        }
+                    })
+                }
+            })
+        }
+    });
+})
+
+/**
+ * For user profile vector
+ */
+
+const calculateAVG = (recipeData, userIds) => {
+    let counts = {};
+    userIds = userIds.map((o) => o._id.toString())
+    const main = []
+    userIds.map((id) => {
+        recipeData.map((recipe) => {
+            const foundIndex = recipe.likes.map((a) => a._id.toString()).indexOf(id);
+            if (foundIndex > -1) {
+                const splittedStop = recipe.stopWordsDescription.split(',');
+                splittedStop.map((a, i) => {
+                    counts[a] = counts[a] ? counts[a] + 1 : 1;
+                })
+                counts['totalLikedRecipe'] = counts['totalLikedRecipe'] ? counts['totalLikedRecipe'] + 1 : 1;
+            }
+        })
+
+        counts.userId = id
+        main.push(counts)
+        counts = {}
+    })
+    const finalResut = []
+    let resultObject = {};
+    main.map((a) => {
+        const objectKeys = Object.keys(a);
+        const objectValues = Object.values(a)
+        const maxNum = Math.max(...objectValues);
+        objectKeys.map((c) => {
+            if (c !== 'userId') {
+                resultObject[c] = a[c] / a.totalLikedRecipe;
+                resultObject.userId = a.userId;
+                delete resultObject.totalLikedRecipe;
+            }
+        })
+        finalResut.push(resultObject)
+        resultObject = {}
+    })
+    return finalResut;
+}
+
+app.get("/calculateavg", function (req, res) {
+    User.find({}, '_id', function (error, users) {
+        if (error) {
+            console.log(error);
+        } else {
+            Recipe.find().populate("comments likes").exec(function (err, recipes) {
+                if (err) {
+                    console.log(error);
+                } else {
+                    var check = calculateAVG(recipes, users);
+                    if (AverageUserProfile.find({})) {
+                        conn.collection("averageUserProfile").drop();
+                    }
+                    check.map((data) => {
+                        AverageUserProfile.create({userId: data.userId, wordList: data})
+                    })
+                    res.send("User Vector Calculated and pushed to Mongo");
+                }
+            });
+        }
+    });
+});
 
 /**
  * App listening port

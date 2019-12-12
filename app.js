@@ -295,12 +295,77 @@ app.get("/recipes/new", isLoggedIn, function (req, res) {
 })
 
 /**
+ * Sort algorithm
+ */
+
+/**
+ * If collectionmatch is defined then we want to execute the code
+ * inside the block, since collectionmatch is the main object containing the wordlist
+ * for the user averages, we can't perform the sort operation without it
+ */
+
+const matchWords = (collectionMatch, searchArray, recipeResult) => {
+    // console.log(recipeResult);
+    const result = []
+    console.log(collectionMatch)
+    if (collectionMatch) {
+        collectionMatch = collectionMatch.wordList[0];
+        let recordFound = {}
+        // we map over all the recipe results that was supplied to the function
+        recipeResult.map((a) => {
+            // We also map over the search query array
+            searchArray.map((rec) => {
+                //  console.log(a.stopWordsDescription.match(rec))
+                //   console.log(a.stopWordsDescription);
+                // the condition checks that the current search word in the loop matches
+                // the values in the stopWordDescription for the currently checked recipe
+                // It also checks if collectionMatch object has the search query in its key.
+                if (a.stopWordsDescription.match(rec) && collectionMatch.hasOwnProperty(rec)) {
+                    // this checks that avgScore exists has a property on the recordFound
+                    // If it exists, we just add the value of collection match for that search query to it
+                    // note: collectionMatch is a key-value pair the values are the numbers, so we them here
+                    if (recordFound.hasOwnProperty('avgScore')) {
+                        recordFound.avgScore += collectionMatch[rec]
+                    } else {
+                        // If the avgScore property does not exist
+                        // We insert it as a new data, also with the recipe info we need on the frontend
+                        recordFound.avgScore = collectionMatch[rec]
+                        recordFound._id = a.id;
+                        recordFound.recipeName = a.recipeName;
+                        recordFound.recipeURL = a.recipeURL;
+                    }
+                }
+            })
+            // Here, instead of pushing an empty object thereby causing empty object to be returned to the frontend,
+            // we check the length of the object coming in and if its empty,
+            // instead of just pushing emtpy object, we add the property we need and set the avgScore to 0.
+            if (!Object.keys(recordFound).length) {
+                recordFound = {
+                    avgScore: 0,
+                    recipeName: a.recipeName,
+                    recipeURL: a.recipeURL,
+                    '_id': a.id
+                }
+            }
+            result.push(recordFound);
+            recordFound = {}
+        })
+        console.log(result)
+        return result.sort((a, b) => parseFloat(b.avgScore) - parseFloat(a.avgScore));
+    } else {
+        return recipeResult;
+    }
+}
+
+/**
  * Route to get all recipes
  */
 
 const filterRecipeComments = (searchQuery, recipeData) => {
     let result = [];
+    // loop over the searchQuery array
     searchQuery.map((searchQuery) => {
+        //We filter and only return the recipe that the comments text matches the current search query in the loop
         recipeData.filter((data) => {
             return data.comments.filter((comment) => {
                 if (comment.text.match(searchQuery)) {
@@ -313,24 +378,19 @@ const filterRecipeComments = (searchQuery, recipeData) => {
     return result;
 }
 
-
 app.get("/recipes", function (req, res) {
     var recipeFound = false;
     Recipe.find().populate('comments').exec(function (err, result) {
             if (req.query.search) {
                 const words = req.query.search.trim().split(' ');
                 var searchWord = stopWord.removeStopwords(words, stopWords);
+                console.log("=====", searchWord, "======");
                 const commentsResult = filterRecipeComments(searchWord, result);
                 if (searchWord.length !== 0) {
                     for (var i = 0; i < searchWord.length; i++) {
                         let recipeData = [];
                         const regex = new RegExp(escapeRegex(searchWord[i]), 'gi')
-                        if (recipeData.length) {
-                            req.flash("success", "Displaying search results");
-                            recipeData = lodash.union(recipeData, commentsResult, '_id');
-                            return res.render("recipes", {recipes: recipeData, success: req.flash("success")});
-                            break;
-                        }
+                        console.log("2");
                         return Recipe.find(
                             {
                                 $or: [{recipeName: regex}, {recipeInstructions: regex}, {stopWordsDescription: regex}]
@@ -338,14 +398,30 @@ app.get("/recipes", function (req, res) {
                                 if (error) {
                                     console.log(error);
                                 } else {
-                                    if (searchWord.length > 0 || recipes.length > 0) {
-                                        recipeData = recipes;
-                                        req.flash("success", "Displaying search results");
-                                        recipeFound = true;
-                                        res.render("recipes", {
-                                            recipes: lodash.union(recipeData, commentsResult, '_id'),
-                                            success: req.flash("success")
-                                        });
+                                    let allRecipeData;
+                                    recipeData = recipes;
+                                    const mergedData = lodash.union(recipeData, commentsResult, '_id')
+                                    if (mergedData.length) {
+                                        if (req.query.userId) {
+                                            AverageUserProfile.findOne({userId: req.query.userId}).exec(function (err, result) {
+                                                allRecipeData = matchWords(result, searchWord, mergedData)
+                                                req.flash("success", "Displaying search results");
+                                                res.render("recipes", {
+                                                    recipes: allRecipeData,
+                                                    success: req.flash("success")
+                                                });
+                                            })
+                                        } else {
+                                            allRecipeData = mergedData;
+                                            recipeData = recipes;
+                                            req.flash("success", "Displaying search results");
+                                            recipeFound = true;
+                                            console.log("-----------------", allRecipeData);
+                                            res.render("recipes", {
+                                                recipes: allRecipeData,
+                                                success: req.flash("success")
+                                            });
+                                        }
                                     } else {
                                         req.flash("error", "No search results found, displaying all recipes");
                                         res.redirect("/recipes");
@@ -375,8 +451,7 @@ app.get("/recipes", function (req, res) {
             }
         }
     )
-})
-;
+});
 
 /**
  * Details of a recipe
@@ -1220,6 +1295,12 @@ app.get("/suggestions", isLoggedIn, function (req, res) {
  * Calcuate Suggestions and push to Mongo collection
  */
 
+/**
+ * This function checks the index at which an element is found in an array of objects.
+ * @param array
+ * @param id
+ */
+
 const getDataFoundIndex = (array, id) => {
     return array.map(function (x) {
         return x._id.toString();
@@ -1228,23 +1309,34 @@ const getDataFoundIndex = (array, id) => {
 
 const calculateSuggestions = (recipeData, usersData) => {
     const usersSuggestions = {};
+    // loop over the user data
     usersData.map((a) => {
+        //loop over the recipe data
         recipeData.map((recipe) => {
+            //we get the index at which a userId exists inside the reciple.likes array
             const foundIndex = getDataFoundIndex(recipe.likes, a._id);
-            // console.log(foundIndex, '======', recipe.likes)
+            // copy the initial recipe.likes array to avoid updating it
             const copiedLikes = [...recipe.likes]
+            // remove the object containing the current user in the loop for recipe.likes data
+            // Since we want to get the likes of the user's mutual likes but not the one they have liked before
             if (foundIndex > -1) {
                 copiedLikes.splice(foundIndex, 1);
                 if (recipe.likes.length) {
+                    // loop over the copied likes
                     copiedLikes.map((like) => {
+                        // loop over all recipe data
                         recipeData.map((b) => {
+                            // check if the user from the mutual suggestion has liked that recipe before
+                            // and the current user has also not liked that same recipe
                             if (getDataFoundIndex(b.likes, like._id) > -1 && getDataFoundIndex(b.likes, a._id) === -1) {
-                                console.log(usersSuggestions[a._id.toString()], '-----')
+                                // check that userSuggestions has some values already and the userId for the mutual suggestion user exist in userSuggestion
                                 if (Object.keys(usersSuggestions).length && usersSuggestions[a._id.toString()]) {
                                     if (usersSuggestions[a._id.toString()].indexOf(b._id.toString()) === -1) {
+                                        // insert the recipeId inside the array for the particular user in userSuggestion object
                                         usersSuggestions[a._id.toString()].push(b._id.toString())
                                     }
                                 } else {
+                                    // Since the userId doesn't currently exist, add it here
                                     usersSuggestions[a._id.toString()] = [b._id.toString()]
                                 }
                             }
@@ -1258,11 +1350,11 @@ const calculateSuggestions = (recipeData, usersData) => {
 }
 
 app.get("/calculatesuggestions", function (req, res) {
-    User.find({}, function (error, users) {
+    User.find({}, '_id', function (error, users) {
         if (error) {
             console.log(error);
         } else {
-            Recipe.find().populate("comments likes").exec(function (err, recipes) {
+            Recipe.find().populate("likes").exec(function (err, recipes) {
                 if (err) {
                     console.log(error);
                 } else {
@@ -1272,7 +1364,8 @@ app.get("/calculatesuggestions", function (req, res) {
                         conn.collection("userSuggestions").drop();
                     }
                     userIds.map((id) => {
-                        UserSuggestions.create({userId: id, suggestionsList: check[id]})
+                        console.log(check[id], id)
+                        return UserSuggestions.create({userId: id, suggestionsList: check[id]})
                     })
                     res.send("Suggestions calculated and pushed to Mongo");
                 }
@@ -1317,20 +1410,31 @@ app.get("/getsuggestions", isLoggedIn, function (req, res) {
 
 const calculateAVG = (recipeData, userIds) => {
     let counts = {};
+    // Here we get all the userIds from the userData object arrays
     userIds = userIds.map((o) => o._id.toString())
     const main = []
-    console.log(userIds);
+    // loop over the userIds
     userIds.map((id) => {
+        //loop over the recipeData
         recipeData.map((recipe) => {
+            // we get the index at which the current user in the loop liked the current recipe in the loop
             const foundIndex = recipe.likes.map((a) => a._id.toString()).indexOf(id);
+            //if found index > -1 it means the user has liked that recipe
             if (foundIndex > -1) {
+                // we split the stopWordsDescription for that recipe by comma which returns an array.
                 const splittedStop = recipe.stopWordsDescription.split(',');
                 splittedStop.map((a, i) => {
+                    // increment the count for that word count if it exist else I just set it to 1
                     counts[a] = counts[a] ? counts[a] + 1 : 1;
                 })
+                // use this to get the totalLikedRecipe for that particular user
                 counts['totalLikedRecipe'] = counts['totalLikedRecipe'] ? counts['totalLikedRecipe'] + 1 : 1;
             }
         })
+
+        // we add a userId set to the id of the current user in the loop
+        // we then store that in the main array and reset the count variable to
+        // prevent conflict when the loop continues
 
         counts.userId = id
         main.push(counts)
@@ -1338,17 +1442,23 @@ const calculateAVG = (recipeData, userIds) => {
     })
     const finalResut = []
     let resultObject = {};
+    // loop over the main array containing all the words and the counts of occurence
     main.map((a) => {
+        // get the keys of the current object in the map array
         const objectKeys = Object.keys(a);
+        // loop over object keys containing all the keys for the list of words
         const objectValues = Object.values(a)
         const maxNum = Math.max(...objectValues);
         objectKeys.map((c) => {
             if (c !== 'userId') {
+                // we calculate the average which is the occurrence of word/total recipe liked by that user
                 resultObject[c] = a[c] / a.totalLikedRecipe;
                 resultObject.userId = a.userId;
+                // we no longer need the totalLikedRecipe value so I delete it
                 delete resultObject.totalLikedRecipe;
             }
         })
+        // store the result in the finalResult array
         finalResut.push(resultObject)
         resultObject = {}
     })
@@ -1369,7 +1479,7 @@ app.get("/calculateavg", function (req, res) {
                         conn.collection("averageUserProfile").drop();
                     }
                     check.map((data) => {
-                        AverageUserProfile.create({userId: data.userId, wordList: data})
+                        return AverageUserProfile.create({userId: data.userId, wordList: data})
                     })
                     res.send("User Vector Calculated and pushed to Mongo");
                 }
@@ -1378,27 +1488,10 @@ app.get("/calculateavg", function (req, res) {
     });
 });
 
-// app.get("/getavg", function (req, res) {
-//     User.find({}, '_id', function (error, users) {
-//         if (error) {
-//             console.log(error);
-//         } else {
-//             Recipe.find({}, function (error, recipes) {
-//                 if (error) {
-//                     console.log(error)
-//                 } else {
-//                     console.log(calculateAVG(recipes, users))
-//                     res.send("Hello");
-//                 }
-//             })
-//         }
-//     });
-// })
-
 /**
  * App listening port
  */
 
-app.listen(process.env.PORT || 8000, function () {
+app.listen(process.env.PORT || 4000, function () {
     console.log("Social Web server started")
 })

@@ -19,9 +19,9 @@
                 <a class="nav-link" href="/" style="font-size: 20px;">Home</a>
             </li>
             <% if(currentUser){ %>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/getsuggestions" style="font-size: 20px;">Suggestions</a>
-                    </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/getsuggestions" style="font-size: 20px;">Suggestions</a>
+                </li>
             <% } %>
         </ul>
     </div>
@@ -53,6 +53,8 @@
                 <li class="nav-item">
                     <form class="form-inline my-2 my-lg-0" action="/recipes" method="GET">
                         <input type="text" name="search" placeholder="Search" class="form-control" style="width: 60%;">
+                        <input type="hidden" name="userId" value="<%= currentUser.id %>" class="form-control"
+                               style="width: 60%;">
                         &nbsp;<button class="fas fa-search btn btn-outline-success my-2 my-sm-0" type="submit"
                                       style="font-size: 23px"></button>
                     </form>

@@ -1,6 +1,6 @@
 # RecipeBook
 
-RecipeBook is what one refers to as a social web 2.0. RecipeBook is a full stack web application with restful routing enabled via ExpressJS and NodeJS. 
+RecipeBook is a social web 2.0. RecipeBook is a full stack web application with restful routing enabled via ExpressJS and NodeJS. 
 
 It helps users create profiles, add & search recipes, have a discussion about it, like, up vote and comment on the same. The website consists of a login and registration system which provides a user centric dashboard. Analytics has been embedded with the application which is used to create a user profile vector in order to get user centric search results and suggestions for different users.
 
